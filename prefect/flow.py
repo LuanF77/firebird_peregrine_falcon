@@ -4,15 +4,6 @@ from pathlib import Path
 import subprocess
 
 
-def get_firebird_config():
-    """Carregar configurações do Prefect (não é flow!)"""
-    database = Variable.get("firebird")
-    outDir = Variable.get("outdir_linux")
-    tables_str = Variable.get("tables")
-    tables = [table.strip() for table in tables_str.split(",")]
-    
-    return database, outDir, tables
-
 @task
 def run_sh_from_github(database: str, outDir: str, table: str) -> str:
     """Executa script bash do repositório com parâmetros"""
@@ -52,20 +43,14 @@ def run_sh_from_github(database: str, outDir: str, table: str) -> str:
 
 
 @flow(name="Get data from firebird", log_prints=True)
-def load_data_from_firebird(database: str = None, outDir: str = None,tables: list[str] = None) -> dict:
+def load_data_from_firebird() -> dict:
     
     """Flow principal que executa o script para cada tabela"""
     
-    # Se todos os parâmetros foram fornecidos, usar
-    if database and outDir and tables:
-        pass  # Usar os parâmetros fornecidos
-    else:
-        # Se faltam, carregar do Prefect
-        database, outDir, tables = get_firebird_config()
-    
-    print(f"\nDatabase: {database}")
-    print(f"Output: {outDir}")
-    print(f"Tables: {tables}\n")
+    database = Variable.get("firebird")
+    outDir = Variable.get("outdir_linux")
+    tables_str = Variable.get("tables")
+    tables = [table for table in tables_str.split(",")]
       
     results = {}   
     
