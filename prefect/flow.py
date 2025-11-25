@@ -43,11 +43,21 @@ def run_sh_from_github(database: str, outDir: str, table: str) -> str:
 
 
 @flow(name="Get data from firebird", log_prints=True)
-def load_data_from_firebird(database: str, outDir: str,tables: list[str] = None) -> dict:
+def load_data_from_firebird(database: str = None, outDir: str = None,tables: list[str] = None) -> dict:
     
     """Flow principal que executa o script para cada tabela"""
+    
+    if database is None:
+        database = Variable.get("firebird")
+    
+    if outDir is None:
+        outDir = Variable.get("outdir_linux")
+    
+    if tables is None:
+        tables_str = Variable.get("tables")
+        tables = [table for table in tables_str.split(",")]
       
-    results = {}
+    results = {}   
     
     # Processar todas as tabelas
     for table in tables:
@@ -69,11 +79,5 @@ def load_data_from_firebird(database: str, outDir: str,tables: list[str] = None)
     return results
 
 
-if __name__ == "__main__":
-    
-    database = Variable.get("firebird")
-    outDir = Variable.get("outdir_linux")
-    tables_str = Variable.get("tables")
-    tables = [table for table in tables_str.split(",")]
-    
-    load_data_from_firebird(database=database, outDir=outDir, tables=tables)
+if __name__ == "__main__":    
+    load_data_from_firebird()
